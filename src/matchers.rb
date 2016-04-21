@@ -1,11 +1,11 @@
 class Matchers
   attr_accessor :matcher
 
-  def initialize object
+  def initialize(object)
     self.matcher = object
   end
 
-  def call object
+  def call(object)
   end
 
 end
@@ -13,7 +13,7 @@ end
 ##################################################################
 
 class VariableMatcher < Matchers
-  def call object
+  def call(object)
     self.matcher == object
   end
 end
@@ -21,7 +21,7 @@ end
 ##################################################################
 
 class TypeMatcher < Matchers
-  def call object
+  def call(object)
     object.class.ancestors.to_a.include?(@matcher)
   end
 end
@@ -33,7 +33,7 @@ class ListMatcher < Matchers
     @matcher = object
   end
 
-  def call object
+  def call(object)
 
   end
 end
