@@ -22,7 +22,7 @@ end
 
 class TypeMatcher < Matchers
   def call(object)
-    object.class.ancestors.to_a.include?(@matcher)
+    object.class.ancestors.to_a.include?(self.matcher)
   end
 end
 
@@ -30,7 +30,7 @@ end
 
 class ListMatcher < Matchers
   def initialize(object, sizeMatch = true)
-    @matcher = object
+    self.matcher = object
   end
 
   def call(object)
