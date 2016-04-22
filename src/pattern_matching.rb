@@ -17,7 +17,7 @@ class Object
 
   def type(clase)
     unless clase.class == Class || clase.class == Module
-      raise 'El parametro de type debe ser una Clase o Mudulo'
+      raise 'El parametro de type debe ser una Clase o Modulo'
     end
     TypeMatcher.new clase
   end
@@ -28,6 +28,12 @@ class Object
 end
 
 
+#puts val(4).call(34534)
+puts val(4).and(type(Integer), type(Comparable)).call(4)
+puts val(4).and(type(Integer), type(String)).not.call(4)
+
+puts val(4).or(type(Integer), type(Comparable)).call(4)
+puts val(4).or(type(Integer), type(String)).call(4)
 "
 objeto = Matchers.new 'sddsd'
 ob = self
