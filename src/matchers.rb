@@ -91,7 +91,7 @@ class NotMatcher < Matchers
     self.matcher = matcher
   end
 
-  def call object
+  def call(object)
     !self.matcher.call object
   end
 

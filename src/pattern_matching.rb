@@ -27,11 +27,3 @@ class Object
     DuckMatcher.new *methods
   end
 end
-
-
-puts val(4).not.call(34534)
-puts val(4).and(type(Integer), type(Comparable)).call(4)
-puts val(4).and(type(Integer), type(String)).not.call(4)
-
-puts val(4).or(type(Integer), type(Comparable)).call(4)
-puts val(4).or(type(Integer), type(String)).call(4)
