@@ -2,7 +2,8 @@ require_relative '../src/matchers'
 
 class Symbol
   def call(otroObjeto)
-    #aca deberia bindearse
+    Object.send(:define_method, self) {otroObjeto}
+    true
   end
 end
 
