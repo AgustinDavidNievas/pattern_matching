@@ -49,4 +49,18 @@ class Object
       end
     }
   end
+
+  def with(*matchers,&bloque)
+    Pattern.new(matchers,bloque)
+  end
+
+  def otherwise(&bloque)
+    patron = Pattern.new(nil,bloque)
+    patron.instance_eval {
+      def call(x)
+        true
+      end
+    }
+    patron
+  end
 end

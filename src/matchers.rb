@@ -39,3 +39,20 @@ end
 
 class Combinators < Matcher
 end
+
+class Pattern
+  attr_accessor :matchers, :bloque
+
+  def initialize(matchers,bloque)
+    self.matchers = matchers
+    self.bloque = bloque
+  end
+
+  def call(comparar)
+    self.matchers.all? {|matcher| matcher.call(comparar)}
+  end
+
+  def exec
+    self.instance_eval {self.bloque.call}
+  end
+end
