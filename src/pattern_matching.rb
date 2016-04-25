@@ -38,10 +38,8 @@ class Object
         x.size.times {|time|
           if type(Matcher).call(x[time]) || x[time].class == Symbol #cambiar por type
             respuestas << x[time].call(y[time])
-            puts 'era Matcher o Symbol' + x[time].to_s + y[time].to_s
           else
             respuestas << val(x[time]).call(y[time])
-            puts 'era una valor x: ' + x[time].to_s + ' y: ' + y[time].to_s
           end
 
         }
