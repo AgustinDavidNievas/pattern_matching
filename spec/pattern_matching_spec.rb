@@ -3,6 +3,9 @@ require_relative '../src/matchers'
 require_relative '../src/pattern_matching'
 
 class Persona
+
+  attr_accessor :nombre
+
   def initialize(nombre)
     @nombre = nombre
   end
@@ -24,14 +27,14 @@ describe 'pattern_matching Test' do
 
     pedro = Persona.new 'Pedro'
 
-    expect(val(5).call(5))
-    expect(val(4).call(4.0000))
-    !expect(val(5).call('5'))
-    !expect(val(5).call(4))
-    expect(val('23').call('23'))
-    !expect(val('yo que se estoy re loco').call('yo que se estoy re loca'))
-    expect(val(pedro).call(pedro))
-    expect(val(pedro).call(Persona.new 'Pedro'))
+    expect(val(5).call(5)).to eq(TRUE)
+    expect(val(4).call(4.0000)).to eq(TRUE)
+    expect(val(5).call('5')).to eq(FALSE)
+    expect(val(5).call(4)).to eq(FALSE)
+    expect(val('23').call('23')).to eq(TRUE)
+    expect(val('yo que se estoy re loco').call('yo que se estoy re loca')).to eq(FALSE)
+    expect(val(pedro).call(pedro)).to eq(TRUE)
+    expect(val(pedro).call(Persona.new 'Pedro')).to eq(FALSE)
 
   end
 
@@ -39,20 +42,20 @@ describe 'pattern_matching Test' do
 
     pedro = Persona.new 'Pedro'
 
-    expect(type(Integer).call(4))
-    expect(type(Comparable).call('hola soy un string comparable :B'))
-    expect(type(Comparable).call(4.4545))
-    expect(type(Numeric).call(4.4545))
-    expect(type(Persona).call(pedro))
+    expect(type(Integer).call(4)).to eq(TRUE)
+    expect(type(Comparable).call('hola soy un string comparable :B')).to eq(TRUE)
+    expect(type(Comparable).call(4.4545)).to eq(TRUE)
+    expect(type(Numeric).call(4.4545)).to eq(TRUE)
+    expect(type(Persona).call(pedro)).to eq(TRUE)
 
     #Estos de abajo funcionan por transitividad, ya que BasicObject y Kernel son ancestros#
-    expect(type(BasicObject).call(4.4545))
-    expect(type(Kernel).call(4.4545))
-    expect(type(Object).call(pedro))
+    expect(type(BasicObject).call(4.4545)).to eq(TRUE)
+    expect(type(Kernel).call(4.4545)).to eq(TRUE)
+    expect(type(Object).call(pedro)).to eq(TRUE)
     #######################################################################################
 
-    !expect(type(String).call(9))
-    !expect(type(Persona).call(9))
+    expect(type(String).call(9)).to eq(FALSE)
+    expect(type(Persona).call(9)).to eq(FALSE)
   end
 
   it 'de listas​: se cumple si el objeto es una lista, cuyos primeros N elementos coinciden
@@ -66,10 +69,10 @@ describe 'pattern_matching Test' do
   it 'duck typing​: se cumple si el objeto entiende una serie de mensajes determinados' do
 
 
-    expect(duck(:nombre).call(Persona))
-    !expect(duck(:nombre,:edad).call(Persona))
+    expect(duck(:nombre).call(Persona.new('Sabrina'))).to eq(TRUE)
+    expect(duck(:nombre,:edad).call(Persona.new('Julian'))).to eq(FALSE)
     #Ya que extendimos el comportamiento de Object...
-    expect(duck(:val,:type,:duck).call(Object.new))
+    expect(duck(:val,:type,:duck).call(Object.new)).to eq(TRUE)
 
   end
 
@@ -77,23 +80,23 @@ describe 'pattern_matching Test' do
 
   it 'and​: se cumple si se cumplen todos los matchers de la composición' do
 
-    expect(val(4).and(type(Integer), type(Comparable)).call(4))
-    expect(type(Integer).and(type(Integer), type(Object)).call(9))
-    expect(type(Integer).and(type(Integer)).call(9))
-    expect(type(Integer).and(type(Integer), type(Object), type(Comparable),type(BasicObject)).call(9))
-    expect(duck(:+).and(type(Integer), val(5)).call(5))
-    !expect(val(4).and(type(Integer), type(String)).call(4))
-    !expect(type(Integer).and(type(Integer), type(Object)).call('soy un string'))
-    !expect(type(String).and(type(Integer), type(Numeric)).call('soy un string'))
+    expect(val(4).and(type(Integer), type(Comparable)).call(4)).to eq(TRUE)
+    expect(type(Integer).and(type(Integer), type(Object)).call(9)).to eq(TRUE)
+    expect(type(Integer).and(type(Integer)).call(9)).to eq(TRUE)
+    expect(type(Integer).and(type(Integer), type(Object), type(Comparable),type(BasicObject)).call(9)).to eq(TRUE)
+    expect(duck(:+).and(type(Integer), val(5)).call(5)).to eq(TRUE)
+    expect(val(4).and(type(Integer), type(String)).call(4)).to eq(FALSE)
+    expect(type(Integer).and(type(Integer), type(Object)).call('soy un string')).to eq(FALSE)
+    expect(type(String).and(type(Integer), type(Numeric)).call('soy un string')).to eq(FALSE)
 
   end
 
   it 'or​: se cumple si se cumple al menos uno de los matchers de la composición' do
 
-    expect(val(1).or(type(Integer), type(Comparable)).call(1))
-    expect(type(Object).or(type(Integer), type(String)).call(4))
-    expect(duck(:-).or(type(Integer)).call(4))
-    !expect(type(Numeric).or(type(SignalException)).call(2))
+    expect(val(1).or(type(Integer), type(Comparable)).call(1)).to eq(TRUE)
+    expect(type(Object).or(type(Integer), type(String)).call(4)).to eq(TRUE)
+    expect(duck(:-).or(type(Integer)).call(4)).to eq(TRUE)
+    expect(type(Persona).or(type(SignalException)).call(2)).to eq(FALSE)
 
   end
 
@@ -101,14 +104,14 @@ describe 'pattern_matching Test' do
 
     bob = Persona.new('Bob')
 
-    expect(val(4).not.call(34534))
-    expect(type(Persona).not.call('Allahu Akbar!'))
-    expect(duck(:kill_em_all).not.call(bob))
-    !expect(type(String).not.call('Allahu Akbar!'))
-    !expect(duck(:nombre).not.call(bob))
+    expect(val(4).not.call(34534)).to eq(TRUE)
+    expect(type(Persona).not.call('Allahu Akbar!')).to eq(TRUE)
+    expect(duck(:kill_em_all).not.call(bob)).to eq(TRUE)
+    expect(type(String).not.call('Allahu Akbar!')).to eq(FALSE)
+    expect(duck(:nombre).not.call(bob)).to eq(FALSE)
 
-    expect(val(4).and(type(Integer), type(String)).not.call(4))
-    !expect(duck(:-).or(type(Integer)).not.call(4))
+    expect(val(4).and(type(Integer), type(String)).not.call(4)).to eq(TRUE)
+    expect(duck(:-).or(type(Integer)).not.call(4)).to eq(FALSE)
 
   end
 
