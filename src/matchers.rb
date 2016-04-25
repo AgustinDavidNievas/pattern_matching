@@ -13,18 +13,20 @@ class Matcher
   def and(*matchers)
     arrayDeMatchers = [self] + matchers
     Combinators.new(arrayDeMatchers) {|listaDeMatchers,objectoAComparar|
-      listaDeMatchers.all? {|matcher|
+      coleccion = listaDeMatchers.collect {|matcher|
         matcher.call(objectoAComparar)
       }
+      coleccion.all? {|valor| valor}
     }
   end
 
   def or(*matchers)
     arrayDeMatchers = [self] + matchers
     Combinators.new(arrayDeMatchers) {|listaDeMatchers,objectoAComparar|
-      listaDeMatchers.any? {|matcher|
+      coleccion = listaDeMatchers.collect {|matcher|
         matcher.call(objectoAComparar)
       }
+      coleccion.any? {|valor| valor}
     }
   end
 
