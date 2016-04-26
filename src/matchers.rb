@@ -1,18 +1,8 @@
-class Matcher
-  attr_accessor :objAMatchear, :bloqueDeMatcheo
-
-  def initialize(objAMatchear,&bloque)
-    self.objAMatchear = objAMatchear
-    self.bloqueDeMatcheo = bloque
-  end
-
-  def call(objetoAComparar)
-    self.bloqueDeMatcheo.call(self.objAMatchear,objetoAComparar)
-  end
+module Combinators
 
   def and(*matchers)
     arrayDeMatchers = [self] + matchers
-    Combinators.new(arrayDeMatchers) {|listaDeMatchers,objectoAComparar|
+    Matcher.new(arrayDeMatchers) {|listaDeMatchers,objectoAComparar|
       coleccion = listaDeMatchers.collect {|matcher|
         matcher.call(objectoAComparar)
       }
@@ -22,7 +12,7 @@ class Matcher
 
   def or(*matchers)
     arrayDeMatchers = [self] + matchers
-    Combinators.new(arrayDeMatchers) {|listaDeMatchers,objectoAComparar|
+    Matcher.new(arrayDeMatchers) {|listaDeMatchers,objectoAComparar|
       coleccion = listaDeMatchers.collect {|matcher|
         matcher.call(objectoAComparar)
       }
@@ -39,7 +29,18 @@ end
 
 ################################################################
 
-class Combinators < Matcher
+class Matcher
+  include Combinators
+  attr_accessor :objAMatchear, :bloqueDeMatcheo
+
+  def initialize(objAMatchear,&bloque)
+    self.objAMatchear = objAMatchear
+    self.bloqueDeMatcheo = bloque
+  end
+
+  def call(objetoAComparar)
+    self.bloqueDeMatcheo.call(self.objAMatchear,objetoAComparar)
+  end
 end
 
 ################################################################

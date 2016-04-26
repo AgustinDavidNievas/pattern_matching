@@ -1,17 +1,23 @@
 require_relative '../src/matchers'
 
-class Symbol
+############################################################################
+module Caller
   def call(otroObjeto)
-    Object.send(:define_method, self) {otroObjeto}
+    #@estaClase
+     Object.send(:define_method, self) {otroObjeto}
     true
   end
 end
-
 ############################################################################
 class Object
 
   def iniciarFramework
+    @estaClase = self
+
     self.instance_eval do
+
+      Symbol.include Combinators
+      Symbol.include Caller
 
       def val(param)
         if(param.class == Symbol)
@@ -87,8 +93,10 @@ class Object
     end
   end
 end
-"
+
 self.iniciarFramework
+
+
 matches('f') do
   with(type(Integer).and(:a)) {puts a + 100}
   with(val(4),type(Integer)) {puts 'este si anda'}
@@ -96,5 +104,19 @@ matches('f') do
   with(val(39439439).or(duck(:nil?).and(:t))) {puts t.to_s + ' tiene el metodo nil?' }
  # otherwise {puts 'no anduvo nada'}
 end
-"
 
+a = with(list([duck(:+).and(type(Fixnum), :x),:y.or(val(4)), duck(:+).not.not])) { x + y }
+puts a.call([1,2,3])
+
+if a.call([1,2,3])
+  puts a.exec
+end
+
+
+b= with(list([:y.and(type(Numeric),duck(:+)),:x.and(type(Integer),duck(:-))])) {y**x}
+
+if b.call([5,2])
+ puts b.exec
+end
+
+#puts b.x
