@@ -25,7 +25,11 @@ describe 'pattern_matching Test' do
   it 'de variable: ​se cumple ​siempre​. Vendría a ser el matcher ​identidad . ​
       Su verdadera utilidad es ​bindear las variables' do
 
-      #TODO, ver mensaje call en Symbol, preguntar a los ayudantes
+    tony = Persona.new 'tony'
+
+    expect(:a_variable_name.call(tony)).to eq(TRUE)
+    expect(tony.methods.include?(:a_variable_name)).to eq(TRUE)
+
 
   end
 
@@ -118,6 +122,50 @@ describe 'pattern_matching Test' do
 
     expect(val(4).and(type(Integer), type(String)).not.call(4)).to eq(TRUE)
     expect(duck(:-).or(type(Integer)).not.call(4)).to eq(FALSE)
+
+  end
+
+  ###########Test punto 3 y punto 4##########################################################
+
+  it 'Pattern y Matches' do
+
+    x = [1, 2, 3]
+    @resultado
+
+    matches(x,TRUE) do
+      with(list([:a, val(2), duck(:+)])) {@resultado = a + 2}
+      with(list([1, 2, 3])) {'aca no llego'}
+      otherwise {'aca tampoco llego'}
+    end
+
+    expect(a).to eq(1)
+    expect(@resultado).to eq(3)
+   ####################################################
+
+    unObjeto = Object.new
+    unObjeto.send(:define_singleton_method, :hola) {'hola'}
+    @unString
+
+    matches(unObjeto, TRUE) do
+      with(duck(:hola)) {@unString = 'chau'}
+      with(type(Object)) {'aca no llego'}
+    end
+
+    expect(@unString).to eq('chau')
+    ##################################################
+
+    unaNumero = 2
+    @otroNumero
+
+    matches(unaNumero, TRUE) do
+      with(type(String)) {a + 2}
+      with(list([1,2,3])) {'aca no llego'}
+      otherwise {@otroNumero = 9} #Aca si llego
+    end
+
+    expect(@otroNumero).to eq(9)
+
+    #TODO hacer uno que lanze la excepcion
 
   end
 
