@@ -42,6 +42,8 @@ end
 class Combinators < Matcher
 end
 
+################################################################
+
 class Pattern
   attr_accessor :matchers, :bloque
 

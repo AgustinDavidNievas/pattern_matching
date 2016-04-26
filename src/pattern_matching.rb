@@ -36,7 +36,7 @@ class Object
       if x.size <= y.size && (!cond || x.size == y.size)
         respuestas = []
         x.size.times {|time|
-          if type(Matcher).call(x[time]) || x[time].class == Symbol #cambiar por type
+          if type(Matcher).call(x[time]) || x[time].class == Symbol
             respuestas << x[time].call(y[time])
           else
             respuestas << val(x[time]).call(y[time])
@@ -51,7 +51,11 @@ class Object
   end
 
   def with(*matchers,&bloque)
-    Pattern.new(matchers,bloque)
+    patron = Pattern.new(matchers,bloque)
+    if instance_variable_defined? :@patrones
+      @patrones << patron
+    end
+    patron
   end
 
   def otherwise(&bloque)
@@ -61,6 +65,31 @@ class Object
         true
       end
     }
+    if instance_variable_defined? :@patrones
+      @patrones << patron
+    end
     patron
   end
+
+  def matches(objAMatchear,lanzarExcepcion = true,&bloque)
+    @patrones = []
+    instance_eval &bloque
+    verdaderos = @patrones.select {|patron| patron.call(objAMatchear)}
+    if verdaderos.empty?
+      raise 'El parametro no matchea con ningun patron ' if lanzarExcepcion
+      return nil
+    end
+    verdaderos[0].exec
+  end
 end
+
+
+"
+matches('f') do
+  with(type(Integer).and(:a)) {puts a + 100}
+  with(val(4),type(Integer)) {puts 'este si anda'}
+  with(val('ac'),type(String)) {puts 'este no anda'}
+  with(val(39439439).or(duck(:nil?).and(:t))) {puts t.to_s + ' tiene el metodo nil?' }
+ # otherwise {puts 'no anduvo nada'}
+end
+"
