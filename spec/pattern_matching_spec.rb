@@ -14,7 +14,13 @@ class Persona
   end
 end
 
+
 describe 'pattern_matching Test' do
+
+
+  before(:each) do
+    self.iniciarFramework
+  end
 
   it 'de variable: ​se cumple ​siempre​. Vendría a ser el matcher ​identidad . ​
       Su verdadera utilidad es ​bindear las variables' do
@@ -72,7 +78,7 @@ describe 'pattern_matching Test' do
     expect(duck(:nombre).call(Persona.new('Sabrina'))).to eq(TRUE)
     expect(duck(:nombre,:edad).call(Persona.new('Julian'))).to eq(FALSE)
     #Ya que extendimos el comportamiento de Object...
-    expect(duck(:val,:type,:duck).call(Object.new)).to eq(TRUE)
+    expect(duck(:val,:type,:duck).call(Object.new)).to eq(FALSE)
 
   end
 
