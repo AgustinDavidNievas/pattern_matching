@@ -2,9 +2,12 @@ require_relative '../src/matchers'
 
 ############################################################################
 module Caller
+  def self.called(objeto)
+    @@called = objeto
+  end
+
   def call(otroObjeto)
-    #@estaClase
-     Object.send(:define_method, self) {otroObjeto}
+    @@called.singleton_class.send(:define_method, self) {otroObjeto}
     true
   end
 end
@@ -12,11 +15,12 @@ end
 class Object
 
   def iniciarFramework
-    @estaClase = self
+    estaClase = self
 
     self.instance_eval do
 
       Symbol.include Combinators
+      Caller.called(estaClase)
       Symbol.include Caller
 
       def val(param)
@@ -93,7 +97,7 @@ class Object
     end
   end
 end
-
+"
 self.iniciarFramework
 
 
@@ -112,11 +116,16 @@ if a.call([1,2,3])
   puts a.exec
 end
 
-
+#Caller.called(algo=Object.new)
+algo = Object.new
+algo.iniciarFramework
 b= with(list([:y.and(type(Numeric),duck(:+)),:x.and(type(Integer),duck(:-))])) {y**x}
 
-if b.call([5,2])
+if b.call([5,4532])
  puts b.exec
 end
 
-#puts b.x
+
+puts self.x
+puts algo.x
+"

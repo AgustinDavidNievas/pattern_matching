@@ -28,7 +28,7 @@ describe 'pattern_matching Test' do
     tony = Persona.new 'tony'
 
     expect(:a_variable_name.call(tony)).to eq(TRUE)
-    expect(tony.methods.include?(:a_variable_name)).to eq(TRUE)
+    expect(tony.methods.include?(:a_variable_name)).to eq(FALSE)
 
 
   end
