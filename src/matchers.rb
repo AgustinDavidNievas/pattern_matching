@@ -57,7 +57,7 @@ class Pattern
     self.matchers.all? {|matcher| matcher.call(comparar)}
   end
 
-  def exec
+  def exec_block
     self.instance_eval {self.bloque.call}
   end
 end

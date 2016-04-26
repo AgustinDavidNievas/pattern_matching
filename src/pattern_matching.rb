@@ -54,7 +54,6 @@ class Object
               else
                 respuestas << val(x[time]).call(y[time])
               end
-
             }
             respuestas.all? {|respuesta| respuesta}
           else
@@ -92,11 +91,12 @@ class Object
           raise 'El parametro no matchea con ningun patron ' if lanzarExcepcion
           return nil
         end
-        verdaderos[0].exec
+        verdaderos[0].exec_block
       end
     end
   end
 end
+
 "
 self.iniciarFramework
 
@@ -113,7 +113,7 @@ a = with(list([duck(:+).and(type(Fixnum), :x),:y.or(val(4)), duck(:+).not.not]))
 puts a.call([1,2,3])
 
 if a.call([1,2,3])
-  puts a.exec
+  puts a.exec_block
 end
 
 #Caller.called(algo=Object.new)
@@ -122,7 +122,7 @@ algo.iniciarFramework
 b= with(list([:y.and(type(Numeric),duck(:+)),:x.and(type(Integer),duck(:-))])) {y**x}
 
 if b.call([5,4532])
- puts b.exec
+ puts b.exec_block
 end
 
 
