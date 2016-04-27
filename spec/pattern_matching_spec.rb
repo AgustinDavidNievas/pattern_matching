@@ -2,15 +2,46 @@ require 'rspec'
 require_relative '../src/matchers'
 require_relative '../src/pattern_matching'
 
+class Comida
+  #Soy comida :3
+end
+
 class Persona
 
-  attr_accessor :nombre
+  attr_accessor :nombre, :mensaje
 
   def initialize(nombre)
     @nombre = nombre
   end
+
   def algo
     @nombre.to_s
+  end
+
+  def come(comida)
+    matches(comida, TRUE) do
+      with(type(Integer)) {self.mensaje = 'estoy comiendo integers!'}
+      with(type(String)) {self.mensaje = 'estoy comiendo string'}
+      with(type(Comida)) {self.mensaje = 'estoy comiendo comida'}
+      otherwise {self.mensaje = 'no hay comida :(!'}
+    end
+  end
+
+end
+
+class Perro
+  attr_accessor :nombre, :mensaje
+
+  def initialize(nombre)
+    @nombre = nombre
+  end
+
+  def come(comida)
+    matches(comida, TRUE) do
+      with(type(Integer)) {self.mensaje = 'estoy comiendo integers!'}
+      with(type(String)) {self.mensaje = 'estoy comiendo string'}
+      with(type(Comida)) {self.mensaje = 'estoy comiendo comida'}
+    end
   end
 end
 
@@ -70,9 +101,16 @@ describe 'pattern_matching Test' do
 
   it 'de listas​: se cumple si el objeto es una lista, cuyos primeros N elementos coinciden
       con los indicados; puede además requerir que el tamaño de la lista sea N. ' do
-    #TODO test de listas,
-    #tenemos una idea de como hacerlo, pero esta el detalle de que se
-    #puede combinar con el matcher de variables
+    lista = [1, 2, 3, 4]
+
+    expect(list([1, 2, 3, 4],TRUE).call(lista)).to eq(TRUE)
+    expect(list([1, 2, 3, 4],FALSE).call(lista)).to eq(TRUE)
+    expect(list([2, 1, 3, 4],FALSE).call(lista)).to eq(FALSE)
+    expect(list([2, 1, 3, 4],TRUE).call(lista)).to eq(FALSE)
+    expect(list([1, 2, 3],TRUE).call(lista)).to eq(FALSE)
+    expect(list([1, 2, 3]).call(lista)).to eq(FALSE)
+    expect(list([1, 2, 3],FALSE).call(lista)).to eq(TRUE)
+
   end
 
 
@@ -165,8 +203,29 @@ describe 'pattern_matching Test' do
 
     expect(@otroNumero).to eq(9)
 
-    #TODO hacer uno que lanze la excepcion
+    ###################################################
 
+    sabrina = Persona.new 'Sabri'
+    gaby = Persona.new 'Gaby'
+    nico = Persona.new 'Nico'
+
+    sabrina.come('soy un string re loco')
+    gaby.come(Comida.new)
+    nico.come(Object.new)
+
+    expect(sabrina.mensaje).to eq('estoy comiendo string')
+    expect(gaby.mensaje).to eq('estoy comiendo comida')
+    expect(nico.mensaje).to eq('no hay comida :(!')
+
+
+
+
+  end
+
+  it 'Matches se espera Error' do
+    rocky = Perro.new 'Rocky'
+
+    expect{rocky.come(5.3)}.to raise_error(NoMacheaConNingunPatron)
   end
 
 end

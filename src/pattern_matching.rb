@@ -88,13 +88,17 @@ module Patter_Matching
       instance_eval &bloque
       verdaderos = @_patrones_.select {|patron| patron.call(objAMatchear)}
       if verdaderos.empty?
-        raise 'El parametro no matchea con ningun patron ' if lanzarExcepcion
+        raise NoMacheaConNingunPatron if lanzarExcepcion
         return nil
       end
       Caller.restoreDefault
       verdaderos[0].exec_block
     end
-  end
+end
+
+class NoMacheaConNingunPatron < StandardError
+  #Esto tendria que estar en el lugar del string en el rise de arriba
+end
 
 class Object
 
