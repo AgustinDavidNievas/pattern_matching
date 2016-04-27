@@ -16,9 +16,7 @@ module Caller
   end
 
   def call(otroObjeto)
-    #Object.class_variable_get(:@@clase_main).singleton_class.
     @@quienLlama.singleton_class.send(:define_method, self) {otroObjeto}
-
     true
   end
 end
@@ -28,9 +26,6 @@ module Patter_Matching
   private
 
     def val(param)
-      if(param.class == Symbol)
-        return param
-      end
       Matcher.new(param) {|x,y| x == y}
     end
 
@@ -68,8 +63,8 @@ module Patter_Matching
 
     def with(*matchers,&bloque)
       patron = Pattern.new(matchers,bloque)
-      if instance_variable_defined? :@patrones
-        @patrones << patron
+      if instance_variable_defined? :@_patrones_
+        @_patrones_ << patron
       end
       patron
     end
@@ -81,17 +76,17 @@ module Patter_Matching
           true
         end
       }
-      if instance_variable_defined? :@patrones
-        @patrones << patron
+      if instance_variable_defined? :@_patrones_
+        @_patrones_ << patron
       end
       patron
     end
 
     def matches(objAMatchear,lanzarExcepcion = true,&bloque)
       Caller.caller self
-      @patrones = []
+      @_patrones_ = []
       instance_eval &bloque
-      verdaderos = @patrones.select {|patron| patron.call(objAMatchear)}
+      verdaderos = @_patrones_.select {|patron| patron.call(objAMatchear)}
       if verdaderos.empty?
         raise 'El parametro no matchea con ningun patron ' if lanzarExcepcion
         return nil
@@ -111,67 +106,4 @@ class Object
   end
 end
 
-
-
 self.iniciarFramework
-
-
-"
-1.times {|x|
-metodo = Patter_Matching.instance_methods(false).to_a[x]
-
-parametros = []
-puts metodo.to_s + ' tiene '+ Patter_Matching.instance_method(metodo).parameters().to_s
-puts  Patter_Matching.instance_method(metodo).class
-puts  Patter_Matching.instance_method(metodo).parameters[0].class
-  metodo.each { |x|
-    parametros << x[1]
-  }
-
-  puts parametros.to_s
-#puts UnboundMethod.new.parameters
-}
-
-#a = Patter_Matching.instance_method(:list)
-#algo = Object.new
-#a.bind(algo).call([1,2,3])
-#algo.list([1,2,3])
-
-
-matches(7,0) do
-  with(type(Integer).and(:a)) {puts a + 100}
-  with(val(4),type(Integer)) {puts 'este si anda'}
-  with(val('ac'),type(String)) {puts 'este no anda'}
-  with(val(39439439).or(duck(:nil?).and(:t))) {puts t.to_s + ' tiene el metodo nil?' }
- otherwise {puts 'no anduvo nada'}
-end
-
-
-puts ObjectSpace.each_object(Matcher).count
-matches('6.9',nil) do
-  with(type(Integer).and(:t)) {puts 'es un integer'}
-  with(type(String)) {puts t.to_s + ' es un string'}
-end
-
-
-
-a = with(list([duck(:+).and(type(Fixnum), :x),:y.or(val(4)), duck(:+).not.not])) { x + y }
-puts a.call([1,2,3])
-
-if a.call([1,2,3])
-  puts a.exec_block
-end
-
-#Caller.called(algo=Object.new)
-algo = Object.new
-algo.iniciarFramework
-b= with(list([:y.and(type(Numeric),duck(:+)),:x.and(type(Integer),duck(:-))])) {y**x}
-
-if b.call([5,4532])
- puts b.exec_block
-end
-
-
-puts self.x
-puts algo.x
-"
