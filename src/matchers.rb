@@ -3,20 +3,18 @@ module Combinators
   def and(*matchers)
     arrayDeMatchers = [self] + matchers
     Matcher.new(arrayDeMatchers) {|listaDeMatchers,objectoAComparar|
-      coleccion = listaDeMatchers.collect {|matcher|
+      listaDeMatchers.all? {|matcher|
         matcher.call(objectoAComparar)
       }
-      coleccion.all? {|valor| valor}
     }
   end
 
   def or(*matchers)
     arrayDeMatchers = [self] + matchers
     Matcher.new(arrayDeMatchers) {|listaDeMatchers,objectoAComparar|
-      coleccion = listaDeMatchers.collect {|matcher|
+      listaDeMatchers.any? {|matcher|
         matcher.call(objectoAComparar)
       }
-      coleccion.any? {|valor| valor}
     }
   end
 

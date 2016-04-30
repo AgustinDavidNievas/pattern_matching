@@ -19,11 +19,12 @@ class Persona
   end
 
   def come(comida)
+    otroSelf = self
     matches(comida, TRUE) do
-      with(type(Integer)) {self.mensaje = 'estoy comiendo integers!'}
-      with(type(String)) {self.mensaje = 'estoy comiendo string'}
-      with(type(Comida)) {self.mensaje = 'estoy comiendo comida'}
-      otherwise {self.mensaje = 'no hay comida :(!'}
+      with(type(Integer)) {otroSelf.mensaje = 'estoy comiendo integers!'}#el bloque se ejecuta en otro contexto. self != instancia de Persona
+      with(type(String)) {otroSelf.mensaje = 'estoy comiendo string'}
+      with(type(Comida)) {otroSelf.mensaje = 'estoy comiendo comida'}
+      otherwise {otroSelf.mensaje = 'no hay comida :(!'}
     end
   end
 
@@ -38,9 +39,10 @@ class Perro
 
   def come(comida)
     matches(comida, TRUE) do
-      with(type(Integer)) {self.mensaje = 'estoy comiendo integers!'}
-      with(type(String)) {self.mensaje = 'estoy comiendo string'}
-      with(type(Comida)) {self.mensaje = 'estoy comiendo comida'}
+      otroSelf = self
+      with(type(Integer)) {otroSelf.mensaje = 'estoy comiendo integers!'}
+      with(type(String)) {otroSelf.mensaje = 'estoy comiendo string'}
+      with(type(Comida)) {otroSelf.mensaje = 'estoy comiendo comida'}
     end
   end
 end
@@ -51,6 +53,7 @@ describe 'pattern_matching Test' do
 
   before(:each) do
     self.iniciarFramework
+    Object.send(:include, Patter_Matching)
   end
 
   it 'de variable: ​se cumple ​siempre​. Vendría a ser el matcher ​identidad . ​
@@ -116,11 +119,11 @@ describe 'pattern_matching Test' do
 
   it 'duck typing​: se cumple si el objeto entiende una serie de mensajes determinados' do
 
+    unObjeto = Object.new
 
     expect(duck(:nombre).call(Persona.new('Sabrina'))).to eq(TRUE)
     expect(duck(:nombre,:edad).call(Persona.new('Julian'))).to eq(FALSE)
-    #Ya que extendimos el comportamiento de Object...
-    expect(duck(:val,:type,:duck).call(Object.new)).to eq(FALSE)
+    expect(duck(:val,:type,:duck).call(unObjeto)).to eq(unObjeto.singleton_class.ancestors.include? Patter_Matching)
 
   end
 
@@ -168,40 +171,39 @@ describe 'pattern_matching Test' do
   it 'Pattern y Matches' do
 
     x = [1, 2, 3]
-    @resultado
+    resultado = Array.new
 
     matches(x,TRUE) do
-      with(list([:a, val(2), duck(:+)])) {@resultado = a + 2}
+      with(list([:a, val(2), duck(:+)])) {resultado << a + 2}
       with(list([1, 2, 3])) {'aca no llego'}
       otherwise {'aca tampoco llego'}
     end
 
-    expect(a).to eq(1)
-    expect(@resultado).to eq(3)
+    expect(resultado).to eq([3])
    ####################################################
 
     unObjeto = Object.new
     unObjeto.send(:define_singleton_method, :hola) {'hola'}
-    @unString
+    unString = nil
 
     matches(unObjeto, TRUE) do
-      with(duck(:hola)) {@unString = 'chau'}
+      with(duck(:hola)) {unString = 'chau'}
       with(type(Object)) {'aca no llego'}
     end
 
-    expect(@unString).to eq('chau')
+    expect(unString).to eq('chau')
     ##################################################
 
     unaNumero = 2
-    @otroNumero
+    otroNumero = nil
 
     matches(unaNumero, TRUE) do
       with(type(String)) {a + 2}
       with(list([1,2,3])) {'aca no llego'}
-      otherwise {@otroNumero = 9} #Aca si llego
+      otherwise {otroNumero = 9} #Aca si llego
     end
 
-    expect(@otroNumero).to eq(9)
+    expect(otroNumero).to eq(9)
 
     ###################################################
 
@@ -228,12 +230,18 @@ describe 'pattern_matching Test' do
     expect{rocky.come(5.3)}.to raise_error(NoMacheaConNingunPatron)
   end
 
-end
+  it 'Las variables viven solo en su contexto' do
 
-"
-objeto = Matchers.new 'sddsd'
-ob = self
-ob.instance_variable_set(:@xsdf,'asdasdasdas')
-#puts @xsdf.context
-puts :ada.call(objeto)
-"
+    class Golondrina
+    end
+
+    pepita = Golondrina.new
+    un_object = Object.new
+    un_object.send(:matches,pepita) do
+      with(:a) {a}
+    end
+    expect(pepita.respond_to? :a).to be false
+    expect(un_object.respond_to? :a).to be false
+  end
+
+end

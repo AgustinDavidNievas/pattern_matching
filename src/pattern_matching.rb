@@ -20,10 +20,9 @@ module Caller
     true
   end
 end
+
 ############################################################################
 module Patter_Matching
-
-  private
 
     def val(param)
       Matcher.new(param) {|x,y| x == y}
@@ -81,20 +80,36 @@ module Patter_Matching
       end
       patron
     end
-
-    def matches(objAMatchear,lanzarExcepcion = true,&bloque)
-      Caller.caller self
-      @_patrones_ = []
-      instance_eval &bloque
-      verdaderos = @_patrones_.select {|patron| patron.call(objAMatchear)}
-      if verdaderos.empty?
-        raise NoMacheaConNingunPatron if lanzarExcepcion
-        return nil
-      end
-      Caller.restoreDefault
-      verdaderos[0].exec_block
-    end
 end
+
+############################################################################
+
+class Matches
+  include Patter_Matching
+  def call(objAMatchear,lanzarExcepcion = true,&bloque)
+    Caller.caller self
+    @_patrones_ = []
+    instance_eval &bloque
+    verdaderos = @_patrones_.select {|patron| patron.call(objAMatchear)}
+    if verdaderos.empty?
+      raise NoMacheaConNingunPatron if lanzarExcepcion
+      return nil
+    end
+    Caller.restoreDefault
+    verdaderos[0].exec_block
+  end
+end
+
+############################################################################
+
+module Match
+
+  def matches(objAMatchear,lanzarExcepcion = true,&bloque)
+    Matches.new.call(objAMatchear,lanzarExcepcion = true,&bloque)
+  end
+end
+
+############################################################################
 
 class NoMacheaConNingunPatron < StandardError
   #Esto tendria que estar en el lugar del string en el rise de arriba
@@ -103,7 +118,7 @@ end
 class Object
 
   def iniciarFramework
-    include Patter_Matching
+    include Match
     Symbol.include Combinators
     Symbol.include Caller
     Caller.default self
@@ -111,3 +126,4 @@ class Object
 end
 
 self.iniciarFramework
+
