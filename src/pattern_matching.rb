@@ -125,5 +125,5 @@ class Object
   end
 end
 
-self.iniciarFramework
+#self.iniciarFramework
 

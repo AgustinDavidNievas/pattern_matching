@@ -52,8 +52,8 @@ describe 'pattern_matching Test' do
 
 
   before(:each) do
-    self.iniciarFramework
-    Object.send(:include, Patter_Matching)
+    Object.iniciarFramework
+    Object.send(:include, Patter_Matching)#Esto esta aca solo para los test
   end
 
   it 'de variable: ​se cumple ​siempre​. Vendría a ser el matcher ​identidad . ​
@@ -240,8 +240,8 @@ describe 'pattern_matching Test' do
     un_object.send(:matches,pepita) do
       with(:a) {a}
     end
-    expect(pepita.respond_to? :a).to be false
-    expect(un_object.respond_to? :a).to be false
+    expect(pepita.respond_to? :a).to be(FALSE)
+    expect(un_object.respond_to? :a).to be(FALSE)
   end
 
 end
