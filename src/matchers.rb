@@ -1,5 +1,10 @@
 module Combinators
 
+  def negar(&bloque)
+      a = self.collect &bloque
+      !a.first
+  end
+
   def and(*matchers)
     arrayDeMatchers = [self] + matchers
     Matcher.new(arrayDeMatchers,&self.generarBloque(:all?))
@@ -11,10 +16,11 @@ module Combinators
   end
 
   def not
-    #Matcher.new(arrayDeMatchers,&self.generarBloque(:negar))
-    Matcher.new(self) {|matcher,objectoAComparar,&contexto|
-      !matcher.call(objectoAComparar,&contexto)
-    }
+    arrayDeMatchers = [self]
+    Matcher.new(arrayDeMatchers,&self.generarBloque(:negar))
+    # Matcher.new(self) {|matcher,objectoAComparar,&contexto|
+    #   !matcher.call(objectoAComparar,&contexto)
+    # }
   end
 
   #private
@@ -61,3 +67,4 @@ class Pattern
     self.instance_eval &(self.bloque)
   end
 end
+

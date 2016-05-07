@@ -112,5 +112,13 @@ class Object
   end
 end
 
-#self.iniciarFramework
+self.iniciarFramework
 
+class Array
+  def negar(&bloque)
+    a = self.collect &bloque
+    !a.first
+  end
+end
+
+puts [1,2,3,0].negar {|x| x+655    }
