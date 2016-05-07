@@ -233,13 +233,19 @@ describe 'pattern_matching Test' do
   it 'Las variables viven solo en su contexto' do
 
     class Golondrina
+      def b(b)
+        matches(b) {
+          with(:a) {puts a}
+        }
+      end
     end
 
     pepita = Golondrina.new
     un_object = Object.new
-    un_object.send(:matches,pepita) do
-      with(:a) {a}
-    end
+    # un_object.send(:matches,pepita) do
+    #   with(:a) {a}
+    # end
+    pepita.b(5)
     expect(pepita.respond_to? :a).to be(FALSE)
     expect(un_object.respond_to? :a).to be(FALSE)
   end

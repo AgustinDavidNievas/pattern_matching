@@ -2,26 +2,17 @@ require_relative '../src/matchers'
 
 ############################################################################
 module Caller
-  def self.default(claseMain)
-    @@default = claseMain
-    restoreDefault
-  end
 
-  def self.restoreDefault
-    @@quienLlama = @@default
-  end
-
-  def self.caller(quienLlama)
-    @@quienLlama = quienLlama
-  end
-
-  def call(otroObjeto)
-    @@quienLlama.singleton_class.send(:define_method, self) {otroObjeto}
+  def call(otroObjeto, &contexto)
+    if block_given?
+      contexto.call.singleton_class.send(:define_method, self) {otroObjeto}
+    end
     true
   end
 end
 
 ############################################################################
+
 module Patter_Matching
 
     def val(param)
@@ -42,13 +33,12 @@ module Patter_Matching
     def list(array, cond = true)
       raise 'Debe ser un array'  unless type(Array).call(array)
       Matcher.new(array) {
-          |x,y|
-
+          |x,y,&contexto|
         if x.size <= y.size && (!cond || x.size == y.size)
           respuestas = []
           x.size.times {|time|
             if type(Matcher).call(x[time]) || x[time].class == Symbol
-              respuestas << x[time].call(y[time])
+              respuestas << x[time].call(y[time],&contexto)
             else
               respuestas << val(x[time]).call(y[time])
             end
@@ -61,7 +51,7 @@ module Patter_Matching
     end
 
     def with(*matchers,&bloque)
-      patron = Pattern.new(matchers,bloque)
+      patron = Pattern.new(matchers,&bloque)
       if instance_variable_defined? :@_patrones_
         @_patrones_ << patron
       end
@@ -69,7 +59,7 @@ module Patter_Matching
     end
 
     def otherwise(&bloque)
-      patron = Pattern.new(nil,bloque)
+      patron = Pattern.new(nil,&bloque)
       patron.instance_eval {
         def call(x)
           true
@@ -87,7 +77,6 @@ end
 class Matches
   include Patter_Matching
   def call(objAMatchear,lanzarExcepcion = true,&bloque)
-    Caller.caller self
     @_patrones_ = []
     instance_eval &bloque
     verdaderos = @_patrones_.select {|patron| patron.call(objAMatchear)}
@@ -95,7 +84,6 @@ class Matches
       raise NoMacheaConNingunPatron if lanzarExcepcion
       return nil
     end
-    Caller.restoreDefault
     verdaderos[0].exec_block
   end
 end
@@ -121,7 +109,6 @@ class Object
     include Match
     Symbol.include Combinators
     Symbol.include Caller
-    Caller.default self
   end
 end
 

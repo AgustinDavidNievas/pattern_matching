@@ -2,25 +2,27 @@ module Combinators
 
   def and(*matchers)
     arrayDeMatchers = [self] + matchers
-    Matcher.new(arrayDeMatchers) {|listaDeMatchers,objectoAComparar|
-      listaDeMatchers.all? {|matcher|
-        matcher.call(objectoAComparar)
-      }
-    }
+    Matcher.new(arrayDeMatchers,&self.generarBloque(:all?))
   end
 
   def or(*matchers)
     arrayDeMatchers = [self] + matchers
-    Matcher.new(arrayDeMatchers) {|listaDeMatchers,objectoAComparar|
-      listaDeMatchers.any? {|matcher|
-        matcher.call(objectoAComparar)
-      }
-    }
+    Matcher.new(arrayDeMatchers,&self.generarBloque(:any?))
   end
 
   def not
-    Matcher.new(self) {|matcher,objectoAComparar|
-      !matcher.call(objectoAComparar)
+    #Matcher.new(arrayDeMatchers,&self.generarBloque(:negar))
+    Matcher.new(self) {|matcher,objectoAComparar,&contexto|
+      !matcher.call(objectoAComparar,&contexto)
+    }
+  end
+
+  #private
+  def generarBloque(sym)
+    Proc.new {|listaDeMatchers,objectoAComparar,&contexto|
+      listaDeMatchers.send(sym) {|matcher|
+        matcher.call(objectoAComparar,&contexto)
+      }
     }
   end
 end
@@ -36,8 +38,8 @@ class Matcher
     self.bloqueDeMatcheo = bloque
   end
 
-  def call(objetoAComparar)
-    self.bloqueDeMatcheo.call(self.objAMatchear,objetoAComparar)
+  def call(objetoAComparar, &contexto)
+    self.bloqueDeMatcheo.call(self.objAMatchear,objetoAComparar,&contexto)
   end
 end
 
@@ -46,16 +48,16 @@ end
 class Pattern
   attr_accessor :matchers, :bloque
 
-  def initialize(matchers,bloque)
+  def initialize(matchers,&bloque)
     self.matchers = matchers
     self.bloque = bloque
   end
 
   def call(comparar)
-    self.matchers.all? {|matcher| matcher.call(comparar)}
+    self.matchers.all? {|matcher| matcher.call(comparar) {self}}
   end
 
   def exec_block
-    self.instance_eval {self.bloque.call}
+    self.instance_eval &(self.bloque)
   end
 end
