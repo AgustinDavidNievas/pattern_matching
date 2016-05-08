@@ -1,31 +1,24 @@
 module Combinators
 
   def negar(&bloque)
-      a = self.collect &bloque
-      !a.first
+      !bloque.call(self)
   end
 
   def and(*matchers)
-    arrayDeMatchers = [self] + matchers
-    Matcher.new(arrayDeMatchers,&self.generarBloque(:all?))
+    armarNuevoMatcher([self] + matchers,:all?)
   end
 
   def or(*matchers)
-    arrayDeMatchers = [self] + matchers
-    Matcher.new(arrayDeMatchers,&self.generarBloque(:any?))
+    armarNuevoMatcher([self] + matchers,:any?)
   end
 
   def not
-    arrayDeMatchers = [self]
-    Matcher.new(arrayDeMatchers,&self.generarBloque(:negar))
-    # Matcher.new(self) {|matcher,objectoAComparar,&contexto|
-    #   !matcher.call(objectoAComparar,&contexto)
-    # }
+    armarNuevoMatcher(self,:negar)
   end
 
-  #private
-  def generarBloque(sym)
-    Proc.new {|listaDeMatchers,objectoAComparar,&contexto|
+  private
+  def armarNuevoMatcher(arrayDeMatchers,sym)
+    Matcher.new(arrayDeMatchers) {|listaDeMatchers,objectoAComparar,&contexto|
       listaDeMatchers.send(sym) {|matcher|
         matcher.call(objectoAComparar,&contexto)
       }

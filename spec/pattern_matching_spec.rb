@@ -235,7 +235,7 @@ describe 'pattern_matching Test' do
     class Golondrina
       def b(b)
         matches(b) {
-          with(:a) {puts a}
+          with(:a) {a}
         }
       end
     end

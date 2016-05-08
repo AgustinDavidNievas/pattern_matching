@@ -5,7 +5,7 @@ module Caller
 
   def call(otroObjeto, &contexto)
     if block_given?
-      contexto.call.singleton_class.send(:define_method, self) {otroObjeto}
+      contexto.call.singleton_class.send(:define_method, self) { otroObjeto }
     end
     true
   end
@@ -20,14 +20,14 @@ module Patter_Matching
     end
 
     def type(clase)
-      unless clase.class == Class || clase.class == Module
+      unless clase.class.is_a?(Module)
         raise 'El parametro de type debe ser una Clase o Modulo'
       end
-      Matcher.new(clase) {|x,y| y.class.ancestors.to_a.include?(x) }
+      Matcher.new(clase) {|x,y| y.is_a?(x) }
     end
 
     def duck(*methods)
-      Matcher.new(methods) {|x,y| x.all? {|method| y.methods.to_a.include?(method)}}
+      Matcher.new(methods) {|x,y| x.all? {|method| y.methods.include?(method)}}
     end
 
     def list(array, cond = true)
@@ -93,7 +93,7 @@ end
 module Match
 
   def matches(objAMatchear,lanzarExcepcion = true,&bloque)
-    Matches.new.call(objAMatchear,lanzarExcepcion = true,&bloque)
+    Matches.new.call(objAMatchear,lanzarExcepcion,&bloque)
   end
 end
 
@@ -111,14 +111,3 @@ class Object
     Symbol.include Caller
   end
 end
-
-self.iniciarFramework
-
-class Array
-  def negar(&bloque)
-    a = self.collect &bloque
-    !a.first
-  end
-end
-
-puts [1,2,3,0].negar {|x| x+655    }
