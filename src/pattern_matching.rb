@@ -34,16 +34,16 @@ module Patter_Matching
       raise 'Debe ser un array'  unless type(Array).call(array)
       Matcher.new(array) {
           |x,y,&contexto|
-        if x.size <= y.size && (!cond || x.size == y.size)
+        if type(Array).call(y) && x.size <= y.size && (!cond || x.size == y.size)
           respuestas = []
-          x.size.times {|time|
-            if type(Matcher).call(x[time]) || x[time].class == Symbol
-              respuestas << x[time].call(y[time],&contexto)
+          x.zip(y).each {|x,y|
+            if type(Matcher).call(x) || x.class == Symbol
+              respuestas << x.call(y,&contexto)
             else
-              respuestas << val(x[time]).call(y[time])
+              respuestas << val(x).call(y)
             end
           }
-          respuestas.all? {|respuesta| respuesta}
+          respuestas.all?
         else
           false
         end
@@ -102,6 +102,8 @@ end
 class NoMacheaConNingunPatron < StandardError
   #Esto tendria que estar en el lugar del string en el rise de arriba
 end
+
+############################################################################
 
 class Object
 
