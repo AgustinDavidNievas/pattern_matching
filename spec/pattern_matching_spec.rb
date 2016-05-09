@@ -53,7 +53,7 @@ describe 'pattern_matching Test' do
 
   before(:each) do
     Object.iniciarFramework
-    Object.send(:include, Patter_Matching)#Esto esta aca solo para los test
+    self.singleton_class.send(:include, Pattern_Matching)#Esto esta aca solo para los test
   end
 
   it 'de variable: ​se cumple ​siempre​. Vendría a ser el matcher ​identidad . ​
@@ -123,7 +123,7 @@ describe 'pattern_matching Test' do
 
     expect(duck(:nombre).call(Persona.new('Sabrina'))).to eq(TRUE)
     expect(duck(:nombre,:edad).call(Persona.new('Julian'))).to eq(FALSE)
-    expect(duck(:val,:type,:duck).call(unObjeto)).to eq(unObjeto.singleton_class.ancestors.include? Patter_Matching)
+    expect(duck(:val,:type,:duck).call(unObjeto)).to eq(unObjeto.singleton_class.ancestors.include? Pattern_Matching)
 
   end
 
@@ -219,9 +219,6 @@ describe 'pattern_matching Test' do
     expect(gaby.mensaje).to eq('estoy comiendo comida')
     expect(nico.mensaje).to eq('no hay comida :(!')
 
-
-
-
   end
 
   it 'Matches se espera Error' do
@@ -250,4 +247,15 @@ describe 'pattern_matching Test' do
     expect(un_object.respond_to? :a).to be(FALSE)
   end
 
+  it 'Matches retorna valor del ejecucion del bloque' do
+    #lista = [1,2,3]
+    lista = ['a','b','c']
+    expect(
+        matches(lista,false){
+          with(list([type(Integer),type(Integer),type(Integer)]),list([:a,:b,:c])) {a+b+c}
+          with(list([type(String),type(String),type(String)]),list([:a,:b,:c])) {a+b+c}
+        }
+    ).to eq('abc')
+
+  end
 end

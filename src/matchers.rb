@@ -45,19 +45,21 @@ end
 ################################################################
 
 class Pattern
-  attr_accessor :matchers, :bloque
+  attr_accessor :matchers, :contexto, :sym, :bloque
 
-  def initialize(matchers,&bloque)
+  def initialize(matchers,contexto,sym,&bloque)
     self.matchers = matchers
     self.bloque = bloque
+    self.contexto = contexto
+    self.sym = sym
   end
 
   def call(comparar)
-    self.matchers.all? {|matcher| matcher.call(comparar) {self}}
+    self.matchers.send(sym) {|matcher| matcher.call(comparar) {@contexto}}
   end
 
-  def exec_block
-    self.instance_eval &(self.bloque)
+  def get_block
+    self.bloque
   end
 end
 
